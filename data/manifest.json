@@ -1,0 +1,66 @@
+[
+  {
+    "file": "cbo-ocupacao.csv",
+    "url": "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/cbo/servicos/downloads/cbo2002-ocupacao.csv",
+    "sha256": "ad6d51d5d139125b15ea746464b2a39fa832ae295cdb6aa63dc7eddf2d2bed00",
+    "bytes": 108256,
+    "content_type": "text/csv",
+    "retrieved_at": "2026-10-10T15:20:33.974975+00:00"
+  },
+  {
+    "file": "cbo-sinonimo.csv",
+    "url": "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/cbo/servicos/downloads/cbo2002-sinonimo.csv",
+    "sha256": "d49e700161106e0da7e69083db97d0a94ec6d7feed3ab874da5a0cd175a1ace1",
+    "bytes": 296747,
+    "content_type": "text/csv",
+    "retrieved_at": "2026-10-10T15:20:34.186821+00:00"
+  },
+  {
+    "file": "cbo-familia.csv",
+    "url": "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/cbo/servicos/downloads/cbo2002-familia.csv",
+    "sha256": "76a56fa0d2d5844c0f470cca74a560c48400455dff4ec306fb2a2672f8c0f928",
+    "bytes": 33361,
+    "content_type": "text/csv",
+    "retrieved_at": "2026-10-10T15:20:33.699711+00:00"
+  },
+  {
+    "file": "cbo-perfilocupacional.csv",
+    "url": "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/cbo/servicos/downloads/cbo2002-perfilocupacional.csv",
+    "sha256": "01f2f99f0831d57fae27b90c57d112432350bee80fe55e969f969d4d9d6f7a91",
+    "bytes": 17646801,
+    "content_type": "text/csv",
+    "retrieved_at": "2026-10-10T15:20:49.013356+00:00"
+  },
+  {
+    "file": "cbo-subgrupo.csv",
+    "url": "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/cbo/servicos/downloads/cbo2002-subgrupo.csv",
+    "sha256": "f9c7dd232da09330e248b42c9e2002ba7a1379de7c5479d6e0dbccf62f3fec69",
+    "bytes": 26199,
+    "content_type": "text/csv",
+    "retrieved_at": "2026-10-10T15:20:34.148430+00:00"
+  },
+  {
+    "file": "cbo-subgrupo-principal.csv",
+    "url": "https://www.gov.br/trabalho-e-emprego/pt-br/assuntos/cbo/servicos/downloads/cbo2002-subgrupo-principal.csv",
+    "sha256": "0e74bcd22818be529eb1c737ecc463c034d730194ecd1f241723c617cc6853b7",
+    "bytes": 6424,
+    "content_type": "text/csv",
+    "retrieved_at": "2026-10-10T15:20:34.262485+00:00"
+  },
+  {
+    "file": "rais-2025.csv",
+    "url": "https://futurodascarreiras.com/profissao/dados/rais/rais_cbo6_2025.csv",
+    "sha256": "b68786ea82b0ba2e1db53c6d9094d53b53c2898a630d09f90cef9ef9e36e9b11",
+    "bytes": 205176,
+    "content_type": "text/csv",
+    "retrieved_at": "2026-10-10T15:20:34.597900+00:00"
+  },
+  {
+    "file": "caged-12m.csv",
+    "url": "https://futurodascarreiras.com/profissao/dados/caged/caged_cbo6_12m.csv",
+    "sha256": "ba21181f90b89cf9eec159fc96f76acfc0c2d44f6ef1cd3f84b9d4a7e6b481cb",
+    "bytes": 141007,
+    "content_type": "text/csv",
+    "retrieved_at": "2026-10-10T15:20:34.601460+00:00"
+  }
+]

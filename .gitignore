@@ -1,0 +1,15 @@
+node_modules/
+.next/
+.env*
+!.env.example
+.local/
+test-results/
+playwright-report/
+*.tsbuildinfo
+.DS_Store
+.venv/
+__pycache__/
+.vercel/
+supabase/.temp/
+supabase/.branches/
+.vercel
