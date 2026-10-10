@@ -69,7 +69,7 @@ npm run data:publish
 
 ## Publicar na Vercel
 
-1. Importe o repositório na Vercel com o framework Next.js. `vercel.json` define instalação, build, diretório `out` e cache dos dados.
+1. Importe o repositório na Vercel com o framework Next.js. `vercel.json` define instalação, build e cache dos dados. A integração Next.js detecta a exportação estática automaticamente; mantenha o Output Directory padrão da Vercel.
 2. Execute `npm run build` ou publique um commit no branch `main`. O build gera os JSONs a partir de `data/processed/catalog.json` e exporta todas as páginas como arquivos estáticos.
 3. Confira `/health.json`, o mapa e os detalhes de uma profissão. Nenhuma variável de ambiente é necessária.
 
