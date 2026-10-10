@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 const config: NextConfig = {
   poweredByHeader: false,
-  serverExternalPackages: ["pg"],
+  output: "export",
+  trailingSlash: true,
 };
 export default config;

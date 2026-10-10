@@ -1,5 +1,9 @@
 node_modules/
 .next/
+out/
+public/data/
+public/health.json
+src/lib/catalog-assets.json
 .env*
 !.env.example
 .local/
@@ -12,4 +16,3 @@ __pycache__/
 .vercel/
 supabase/.temp/
 supabase/.branches/
-.vercel

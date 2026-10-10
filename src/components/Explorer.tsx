@@ -41,6 +41,7 @@ import {
   Preparation,
 } from "@/lib/types";
 import { filterCatalog } from "@/lib/filter";
+import catalogAssets from "@/lib/catalog-assets.json";
 
 function useDialogFocus(
   open: boolean,
@@ -196,7 +197,7 @@ export default function Explorer() {
   };
   useEffect(() => {
     const controller = new AbortController();
-    fetch("/api/catalog", { signal: controller.signal })
+    fetch(catalogAssets.catalog, { signal: controller.signal })
       .then(async (r) => {
         if (!r.ok) throw new Error("Não foi possível conectar ao catálogo.");
         return r.json();
@@ -1034,7 +1035,9 @@ function DetailDrawer({
     setError(false);
     setMore(false);
     const c = new AbortController();
-    fetch(`/api/occupations/${o.code}`, { signal: c.signal })
+    fetch(`${catalogAssets.details}/${encodeURIComponent(o.code)}.json`, {
+      signal: c.signal,
+    })
       .then(async (r) => {
         if (!r.ok) throw new Error();
         return r.json();

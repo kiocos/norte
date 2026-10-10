@@ -1,18 +1,53 @@
 import { test, expect } from "@playwright/test";
-test("real PostgreSQL API returns catalog and rejects malformed details", async ({
+test("static files expose the full catalog and details without an API", async ({
   request,
 }) => {
-  const health = await request.get("/api/health");
+  const health = await request.get("/health.json");
   expect(health.ok()).toBeTruthy();
-  expect((await health.json()).total).toBe(3223);
-  const catalog = await request.get("/api/catalog");
+  const status = await health.json();
+  expect(status.storage).toBe("static");
+  expect(status.total).toBe(3223);
+  const catalog = await request.get(status.catalog);
   const data = await catalog.json();
   expect(data.areas).toHaveLength(14);
   expect(data.occupations).toHaveLength(3223);
-  const detail = await request.get("/api/occupations/212405");
+  const detail = await request.get(`${status.details}/212405.json`);
   expect((await detail.json()).activities.length).toBeGreaterThan(5);
-  expect((await request.get("/api/occupations/invalid")).status()).toBe(400);
-  expect((await request.get("/api/occupations/999998")).status()).toBe(404);
+  expect((await request.get(`${status.details}/999998.json`)).status()).toBe(
+    404,
+  );
+  expect((await request.get("/api/catalog")).status()).toBe(404);
+});
+test("map works without external services and downloads details only when opened", async ({
+  page,
+}) => {
+  const dataRequests: string[] = [];
+  await page.route("**/*", (route) => {
+    const url = new URL(route.request().url());
+    if (
+      url.pathname.startsWith("/api/") ||
+      /supabase|neon\.tech/.test(url.hostname)
+    )
+      return route.abort();
+    if (url.pathname.startsWith("/data/")) dataRequests.push(url.pathname);
+    return route.continue();
+  });
+  await page.goto("/");
+  await expect(page.getByText("3.223", { exact: true })).toBeVisible();
+  expect(dataRequests).toHaveLength(1);
+  expect(dataRequests[0]).toMatch(/\/data\/[a-f0-9]{16}\/catalog\.json$/);
+  await page.getByRole("button", { name: "Lista", exact: true }).click();
+  await page.getByRole("searchbox").fill("youtuber");
+  await expect(page.locator(".career-card")).toHaveCount(1);
+  expect(dataRequests).toHaveLength(1);
+  await page.locator(".card-main").click();
+  await expect(page.getByRole("dialog")).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Sem estimativa confiável" }),
+  ).toBeVisible();
+  expect(dataRequests.filter((url) => url.includes("/occupations/"))).toEqual([
+    dataRequests[0].replace("catalog.json", "occupations/path-youtube.json"),
+  ]);
 });
 test("map, search, salary range, save, comparison and guide work without runtime errors", async ({
   page,

@@ -1,10 +1,12 @@
 # Norte · mapa de carreiras e caminhos de renda
 
-Webapp fullstack para explorar possibilidades de trabalho no Brasil. Next.js 16, React 19, TypeScript, Canvas 2D + D3 e PostgreSQL. Preparado para Vercel e Supabase; funciona localmente sem conta nesses serviços.
+Webapp estático para explorar possibilidades de trabalho no Brasil. Next.js 16, React 19, TypeScript e Canvas 2D + D3. Páginas e dados publicados na CDN da Vercel, sem banco de dados, funções de servidor ou consultas às fontes externas durante o uso.
+
+**Publicado:** https://norte-carreiras.vercel.app · **Código:** https://github.com/kiocos/norte
 
 ## Rodar localmente
 
-Pré-requisitos: Node.js 22.16+ (recomendado 24), npm, Python 3 e PostgreSQL 16+ com `initdb`, `pg_ctl`, `psql` e `createdb` no PATH.
+Pré-requisitos: Node.js 24 e npm. Python é necessário somente para atualizar os snapshots das fontes.
 
 ```sh
 cd ~/mapa-carreiras
@@ -12,7 +14,7 @@ npm ci
 bash scripts/start-local.sh
 ```
 
-Abra **http://127.0.0.1:3000**. O script cria uma instância isolada do PostgreSQL em `.local/postgres`, escutando somente em `127.0.0.1:55432`, e importa o catálogo. Essa configuração local usa autenticação `trust`; não a exponha em outra interface de rede. Não modifica o banco padrão da máquina.
+Abra **http://127.0.0.1:3000**. O catálogo incluído no repositório é convertido automaticamente em arquivos públicos antes de iniciar. Não exige `.env.local`, credenciais nem banco de dados.
 
 Para modo de produção local:
 
@@ -20,7 +22,7 @@ Para modo de produção local:
 bash scripts/start-local.sh --production
 ```
 
-Para encerrar o servidor em primeiro plano, use Ctrl+C. Para encerrar a instância de banco e o servidor em segundo plano entregue nesta sessão, execute `bash scripts/stop-local.sh`.
+Para encerrar o servidor em primeiro plano, use Ctrl+C. Para encerrar o servidor em segundo plano entregue nesta sessão, execute `bash scripts/stop-local.sh`.
 
 ## O que está implementado
 
@@ -31,7 +33,7 @@ Para encerrar o servidor em primeiro plano, use Ctrl+C. Para encerrar a instânc
 - Lista com filtros fixos na lateral esquerda, ordenação, carregamento incremental, detalhes com tarefas oficiais, referências, percentis salariais e amostra.
 - Salvos e comparação de até três opções, persistidos neste navegador. O botão de comparar aparece na parte inferior central apenas com alguma opção adicionada. Exploração inicial por interesses e URLs compartilháveis com os filtros.
 - Página `/sobre` com cobertura, metodologia, fontes e limitações.
-- APIs `/api/catalog`, `/api/occupations/:code` e `/api/health`, consultando PostgreSQL real.
+- Catálogo inicial de aproximadamente 240 KB com gzip, detalhes individuais sob demanda e arquivos versionados pelo conteúdo, com cache imutável. `/health.json` informa a versão e a cobertura publicadas.
 
 ## Cobertura desta versão
 
@@ -60,22 +62,22 @@ python3 -m venv .venv
 .venv/bin/python scripts/fetch_mei.py
 .venv/bin/python scripts/fetch_training.py
 python3 scripts/normalize.py
-npm run db:setup
+npm run data:publish
 ```
 
 `data/manifest.json` registra URLs, data e SHA-256 das fontes CSV. `data/raw/mei-activities.json` inclui a proveniência do PDF e a página de cada atividade. `data/processed/quality-report.json` registra contagens, dados ausentes e códigos sem correspondência. A atualização é manual; os rótulos de período e as verificações de cobertura devem ser revisados quando a versão das bases mudar. Os scripts abortam diante de falhas de download em vez de inventar dados.
 
-## Vercel + Supabase
+## Publicar na Vercel
 
-1. Crie um projeto Supabase e obtenha a conexão PostgreSQL. Para a importação, use a conexão direta ou o pooler de sessão com uma credencial que possa criar tabelas.
-2. Configure `DATABASE_URL` e `DATABASE_SSL=true` em `.env.local` ou no ambiente. Execute `npm run db:setup`: as migrações em `supabase/migrations` e o seed são idempotentes.
-3. Importe este diretório em um projeto Vercel. O framework é Next.js; `vercel.json` define instalação e build.
-4. Configure `DATABASE_URL` com a URL do **transaction pooler** Supabase e `DATABASE_SSL=true` na Vercel. A URL é usada exclusivamente no servidor; não use prefixo `NEXT_PUBLIC_`. O cliente `pg` utiliza pool pequeno e consultas parametrizadas sem prepared statements nomeados.
-5. Faça o deploy e confira `/api/health`.
+1. Importe o repositório na Vercel com o framework Next.js. `vercel.json` define instalação, build, diretório `out` e cache dos dados.
+2. Execute `npm run build` ou publique um commit no branch `main`. O build gera os JSONs a partir de `data/processed/catalog.json` e exporta todas as páginas como arquivos estáticos.
+3. Confira `/health.json`, o mapa e os detalhes de uma profissão. Nenhuma variável de ambiente é necessária.
 
-As tabelas têm RLS habilitado e políticas públicas somente de leitura; os papéis anônimos do Supabase não recebem permissão de escrita. Não há cadastro, autenticação ou sincronização de salvos entre dispositivos nesta versão.
+O navegador carrega um catálogo compacto para mapa, busca e filtros, e baixa os detalhes de uma opção apenas quando ela é aberta. Os dados completos não fazem parte do bundle JavaScript. URLs com hash permitem cache de um ano sem manter dados antigos após uma atualização: um novo snapshot gera novos endereços. Os arquivos gerados não são versionados no Git; os snapshots e o exportador são.
 
-Documentação de referência: [conexões Supabase](https://supabase.com/docs/guides/database/connecting-to-postgres) e [Next.js na Vercel](https://vercel.com/docs/frameworks/full-stack/nextjs).
+As fontes externas só são consultadas pelos scripts de atualização manual; indisponibilidade delas não interrompe o app nem o build. Não há cadastro, autenticação ou sincronização de salvos entre dispositivos nesta versão.
+
+Documentação de referência: [exportação estática do Next.js](https://nextjs.org/docs/app/guides/static-exports) e [Next.js na Vercel](https://vercel.com/docs/frameworks/full-stack/nextjs).
 
 ## Verificação
 
@@ -83,24 +85,25 @@ Documentação de referência: [conexões Supabase](https://supabase.com/docs/gu
 npm run typecheck
 npm test
 npm run build
-# Com o app e o banco em execução:
+# Com o app em execução:
 npx playwright install chromium
 npm run test:e2e
 ```
 
-Para reutilizar um Chromium existente, defina `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH`. Os testes verificam a base, semântica dos filtros, ausência de imputação salarial, API PostgreSQL, busca, salvos, comparação, guia de interesses, URLs e layout móvel. As capturas ficam em `test-results/`.
+Para reutilizar um Chromium existente, defina `PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH`. Os testes verificam a integridade dos arquivos estáticos, carregamento dos detalhes sob demanda, base, filtros, ausência de imputação salarial, busca, salvos, comparação, guia de interesses, URLs e layout móvel. As capturas ficam em `test-results/`.
 
 ## Estrutura
 
 ```text
-src/app/                 Páginas, APIs e estilos
+src/app/                 Páginas e estilos
 src/components/          Exploração, visualização Canvas e diálogos
-src/lib/                 Tipos, filtros e consultas PostgreSQL
+src/lib/                 Tipos, filtros e referência aos arquivos da versão
 data/raw/                Snapshots das fontes
 data/processed/          Catálogo e relatório de qualidade
 data/editorial-paths.json Curadoria adicional rastreável
-scripts/                 Coleta, normalização, seed e execução local
-supabase/migrations/     Schema PostgreSQL e políticas RLS
+scripts/                 Coleta, normalização, exportação e execução local
+public/data/             Catálogo compacto e detalhes gerados no build
+out/                     Site estático pronto para publicação
 tests/                   Testes de dados, filtros e navegação
 ```
 

@@ -2,11 +2,13 @@
 .env*
 .venv/
 data/raw/
-data/processed/catalog.json
 test-results/
 playwright-report/
 tests/
-scripts/
+out/
+public/data/
+public/health.json
+src/lib/catalog-assets.json
 supabase/.temp/
 supabase/.branches/
 *.tsbuildinfo
