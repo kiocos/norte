@@ -7,14 +7,14 @@ import { useTheme } from "./ThemeProvider";
 
 type View = { x: number; y: number; k: number };
 const NAME_FONT_SIZE = 12;
-const NAME_FADE_START = 2.5;
-const NAME_FADE_RANGE = 3;
-function nameOpacity(scale: number) {
-  const progress = Math.max(
-    0,
-    Math.min(1, (NAME_FONT_SIZE * scale - NAME_FADE_START) / NAME_FADE_RANGE),
-  );
+const NAME_FADE_START = 0.095;
+const NAME_FADE_RANGE = 0.055;
+function smoothProgress(value: number) {
+  const progress = Math.max(0, Math.min(1, value));
   return progress * progress * (3 - 2 * progress);
+}
+function nameOpacity(scale: number) {
+  return smoothProgress((scale - NAME_FADE_START) / NAME_FADE_RANGE);
 }
 function titleLines(
   ctx: CanvasRenderingContext2D,
@@ -240,9 +240,9 @@ export default function MapCanvas({
           ctx.fillStyle = dark ? "#e5e5e5" : "#444444";
           ctx.fill();
         }
-        // Fixed typography and line breaks: pan/hover never select a different
-        // set of profession labels. Names belong inside their own circle.
-        const fontSize = NAME_FONT_SIZE;
+        // Keep early labels readable in small circles; truncate to the space
+        // available, then reveal more of the title as the user zooms in.
+        const fontSize = Math.max(NAME_FONT_SIZE, 5 / view.k);
         if (labelOpacity > 0) {
           ctx.save();
           ctx.globalAlpha = labelOpacity;
@@ -252,7 +252,11 @@ export default function MapCanvas({
             /, independente| independente/gi,
             "",
           );
-          const lines = titleLines(ctx, short, p.r * 1.52, 5);
+          const maxLines = Math.max(
+            1,
+            Math.min(5, Math.floor((p.r * 1.3) / (fontSize * 1.2))),
+          );
+          const lines = titleLines(ctx, short, p.r * 1.52, maxLines);
           ctx.textAlign = "center";
           ctx.textBaseline = "middle";
           lines.forEach((line, index) =>
@@ -276,7 +280,7 @@ export default function MapCanvas({
       !hintDismissed &&
       hasZoomedIn.current &&
       labelCount > 0 &&
-      NAME_FONT_SIZE * view.k >= NAME_FADE_START + NAME_FADE_RANGE
+      labelOpacity >= 0.98
     ) {
       setHintDismissed(true);
     }
@@ -467,7 +471,7 @@ export default function MapCanvas({
         }}
       />
       {layout.islands.map((island) => {
-        const opacity = 1 - nameOpacity(view.k);
+        const opacity = 1 - smoothProgress((view.k - 0.075) / 0.07);
         if (opacity <= 0) return null;
         const left = (island.x + island.w / 2) * view.k + view.x;
         const top = (island.y + island.h / 2) * view.k + view.y;
